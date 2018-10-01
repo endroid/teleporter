@@ -4,4 +4,5 @@ services:
     autoconfigure: true
     public: false
 
-  Endroid\Sudoku\Factory: ~
+  Endroid\Teleporter\Command\TeleporterCommand: ~
+  Endroid\Teleporter\Teleporter: ~
