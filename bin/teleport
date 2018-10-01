@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * (c) Jeroen van den Enden <info@endroid.nl>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+function includeIfExists($file)
+{
+    if (file_exists($file)) {
+        return include $file;
+    }
+}
+
+if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader = includeIfExists(__DIR__.'/../../../autoload.php'))) {
+    die('You must set up the project dependencies, run the following commands:'.PHP_EOL.
+        'curl -sS https://getcomposer.org/installer | php'.PHP_EOL.
+        'php composer.phar install'.PHP_EOL);
+}
+
+use Symfony\Component\Console\Application;
+use Endroid\Teleporter\Command\TeleportCommand;
+use Endroid\Teleporter\Teleporter;
+
+$console = new Application('Endroid Teleporter');
+$console->add(new TeleportCommand(new Teleporter()));
+$console->run();
