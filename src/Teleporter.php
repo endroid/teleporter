@@ -11,6 +11,7 @@ namespace Endroid\Teleporter;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Teleporter
 {
@@ -28,8 +29,19 @@ class Teleporter
         $files = $this->finder->files()->in($sourcePath);
 
         foreach ($files as $file) {
-            dump($file);
-            die;
+            $this->teleportFile($file, $targetPath, $conditions);
         }
+    }
+
+    private function teleportFile(SplFileInfo $fileInfo, string $targetPath, array $conditions): void
+    {
+        $contents = $fileInfo->getContents();
+        $contents = $this->filterContents($contents, $conditions);
+    }
+
+    private function filterContents(string $contents, array $conditions): string
+    {
+        $parts = preg_split('/[ \t]*### (.+) ###\n?/', $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
+
     }
 }
