@@ -22,7 +22,7 @@
         "symfony/var-dumper": "^4.0",
         "phpunit/phpunit": "^5.7|^6.0"
     },
-    "bin": ["bin/teleporter"],
+    "bin": ["bin/teleport"],
     "autoload": {
         "psr-4": {
             "Endroid\\Teleporter\\": "src/"
