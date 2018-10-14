@@ -44,10 +44,8 @@ class Teleporter
         $contents = $file->getContents();
         $contents = $this->filterContents($contents, $conditions);
 
-        if (trim($contents) !== '') {
-            $this->fileSystem->dumpFile($targetPath, $contents);
-            $this->fileSystem->chmod($targetPath, $permissions);
-        }
+        $this->fileSystem->dumpFile($targetPath, $contents);
+        $this->fileSystem->chmod($targetPath, $permissions);
     }
 
     private function filterContents(string $contents, array $conditions): string
