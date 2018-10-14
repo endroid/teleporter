@@ -29,26 +29,30 @@ class Teleporter
         $this->finder->ignoreDotFiles(false);
     }
 
-    public function teleport(string $sourcePath, string $targetPath, array $conditions = []): void
+    public function teleport(string $sourcePath, string $targetPath, iterable $selections): void
     {
         /** @var SplFileInfo[] $files */
         $files = $this->finder->files()->in($sourcePath);
 
         foreach ($files as $file) {
-            $this->teleportFile($file, $targetPath.'/'.$file->getRelativePathname(), $file->getPerms(), $conditions);
+            $this->teleportFile($file, $targetPath.'/'.$file->getRelativePathname(), $file->getPerms(), $selections);
         }
     }
 
-    private function teleportFile(SplFileInfo $file, string $targetPath, int $permissions, array $conditions): void
+    private function teleportFile(SplFileInfo $file, string $targetPath, int $permissions, iterable $selections): void
     {
         $contents = $file->getContents();
-        $contents = $this->filterContents($contents, $conditions);
+        $contents = $this->filterContents($contents, $selections);
+
+        if (trim($contents) === '') {
+            return;
+        }
 
         $this->fileSystem->dumpFile($targetPath, $contents);
         $this->fileSystem->chmod($targetPath, $permissions);
     }
 
-    private function filterContents(string $contents, array $conditions): string
+    private function filterContents(string $contents, iterable $selections): string
     {
         $parts = preg_split('/[ \t]*### (.+) ###\n?/', $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -66,10 +70,10 @@ class Teleporter
                 continue;
             }
 
-            $condition = str_replace(array_keys($conditionReplaces), array_values($conditionReplaces), $condition);
-            $include = $this->expressionLanguage->evaluate($condition);
+            $condition = str_replace($selections, 'true', $condition);
+            $condition = preg_replace('/(?!true\b)\b\w+/', 'false', $condition);
 
-            if ($include) {
+            if ($this->expressionLanguage->evaluate($condition)) {
                 $filteredContents .= $parts[$offset + 1];
                 $skipDepth = 1000;
             } else {
@@ -77,6 +81,6 @@ class Teleporter
             }
         }
 
-        return implode('', $parts);
+        return $filteredContents;
     }
 }

@@ -34,7 +34,7 @@ class TeleportCommand extends Command
             ->setName('endroid:teleport')
             ->addArgument('sourcePath', InputArgument::REQUIRED)
             ->addArgument('targetPath', InputArgument::REQUIRED)
-            ->addArgument('conditions', InputArgument::IS_ARRAY)
+            ->addArgument('selections', InputArgument::IS_ARRAY)
             ->setDescription('Teleports files from one location to another')
         ;
     }
@@ -43,8 +43,8 @@ class TeleportCommand extends Command
     {
         $sourcePath = $input->getArgument('sourcePath');
         $targetPath = $input->getArgument('targetPath');
-        $conditions = $input->getArgument('conditions');
+        $selections = $input->getArgument('selections');
 
-        $this->teleporter->teleport($sourcePath, $targetPath, $conditions);
+        $this->teleporter->teleport($sourcePath, $targetPath, $selections);
     }
 }
