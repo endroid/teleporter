@@ -30,4 +30,5 @@ use Endroid\Teleporter\Teleporter;
 
 $console = new Application('Endroid Teleporter');
 $console->add(new TeleportCommand(new Teleporter()));
+$console->setDefaultCommand('endroid:teleport', true);
 $console->run();
