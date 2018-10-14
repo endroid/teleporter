@@ -7,12 +7,34 @@
 [![Total Downloads](http://img.shields.io/packagist/dt/endroid/teleporter.svg)](https://packagist.org/packages/endroid/teleporter)
 [![License](http://img.shields.io/packagist/l/endroid/teleporter.svg)](https://packagist.org/packages/endroid/teleporter)
 
+Copies files from one location to another while filtering the file contents
+and directories based on a list of component names to include. This allows you
+to have one single generic source for building many project variants with any
+combination of components.
+
+## Usage
+
+You can use the provided teleport command like this.
+
+``` bash
+vendor/bin/teleport <source_path> <target_path> <components>
+```
+
+Here I use the command to generate a specific admin + api project from my
+generic development folder which contains all possible project variations.
+
+``` bash
+vendor/bin/teleport development project admin api
+```
+
+All sections named different than admin and api are ignored while copying.
+
 ## Installation
 
 Use [Composer](https://getcomposer.org/) to install the library.
 
 ``` bash
-$ composer require endroid/teleporter
+composer require endroid/teleporter
 ```
 
 When you use Symfony, the [installer](https://github.com/endroid/installer)
