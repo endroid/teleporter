@@ -59,7 +59,7 @@ class Teleporter
         $filteredContents = $parts[0];
 
         $depth = 0;
-        $skipDepth = 1000;
+        $skipDepth = 10000;
 
         for ($offset = 1; $offset < count($parts); $offset += 2) {
 
@@ -70,10 +70,11 @@ class Teleporter
                 continue;
             }
 
-            $condition = str_replace($selections, 'true', $condition);
-            $condition = preg_replace('/(?!true\b)\b\w+/', 'false', $condition);
+            $append = str_replace($selections, 'true', $condition);
+            $append = preg_replace('/(?!true\b)\b\w+/', 'false', $append);
+            $append = $condition == 'end' || $this->expressionLanguage->evaluate($append);
 
-            if ($this->expressionLanguage->evaluate($condition)) {
+            if ($append) {
                 $filteredContents .= $parts[$offset + 1];
                 $skipDepth = 1000;
             } else {
