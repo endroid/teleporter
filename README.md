@@ -12,23 +12,6 @@ and directories based on a list of component names to include. This allows you
 to have one single generic source for building many project variants with any
 combination of components.
 
-## Usage
-
-You can use the provided teleport command like this.
-
-``` bash
-vendor/bin/teleport <source_path> <target_path> <components>
-```
-
-Here I use the command to generate a specific admin + api project from my
-generic development folder which contains all possible project variations.
-
-``` bash
-vendor/bin/teleport development project admin api
-```
-
-All sections named different than admin and api are ignored while copying.
-
 ## Installation
 
 Use [Composer](https://getcomposer.org/) to install the library.
@@ -39,6 +22,39 @@ composer require endroid/teleporter
 
 When you use Symfony, the [installer](https://github.com/endroid/installer)
 makes sure that services are automatically wired.
+
+## Usage
+
+You can specify sections to include or exclude using ### condition ### tags. For
+instance when we desire JWT we need to retrieve a token before performing an API call.
+
+``` php
+Feature: API Access
+  In order to access protected resource
+  As an API client
+  I need to be able to connect
+
+  Scenario: Perform API call
+    ### jwt ###
+    Given I retrieve a JWT token for user "admin"
+    ### end ###
+    And I send a GET request to "api/examples"
+    Then the response should be in JSON
+```
+
+For the example given above we would perform the following call to copy the
+project files including all JWT related code. If we omit the jwt parameter, the
+files are copied without the sections marked for JWT.
+
+``` bash
+vendor/bin/teleport development project jwt
+```
+
+In general the teleport command requires the following parameters.
+
+``` bash
+vendor/bin/teleport <source_path> <target_path> <components>
+```
 
 ## Versioning
 
