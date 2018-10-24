@@ -43,8 +43,8 @@ class Teleporter
         foreach ($files as $file) {
             $contents = $renderer->render($file->getRelativePathname(), $context);
 
-            if (trim($contents) === '') {
-                return;
+            if (trim($contents) === '' && file_get_contents($file->getPathname()) != $contents) {
+                continue;
             }
 
             $this->fileSystem->dumpFile($targetPath.'/'.$file->getRelativePathname(), $contents);
