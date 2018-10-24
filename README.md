@@ -35,9 +35,9 @@ Feature: API Access
   I need to be able to connect
 
   Scenario: Perform API call
-    ### jwt ###
+    {## if jwt ##}
     Given I retrieve a JWT token for user "admin"
-    ### end ###
+    {## endif ##}
     And I send a GET request to "api/examples"
     Then the response should be in JSON
 ```
