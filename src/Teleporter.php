@@ -13,6 +13,9 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Twig\Environment;
+use Twig\Lexer;
+use Twig\Loader\FilesystemLoader;
 
 class Teleporter
 {
@@ -31,57 +34,45 @@ class Teleporter
 
     public function teleport(string $sourcePath, string $targetPath, iterable $selections): void
     {
+        $renderer = $this->createRenderer($sourcePath);
+        $context = $this->createRendererContext($selections);
+
         /** @var SplFileInfo[] $files */
         $files = $this->finder->files()->in($sourcePath);
 
         foreach ($files as $file) {
-            $this->teleportFile($file, $targetPath.'/'.$file->getRelativePathname(), $file->getPerms(), $selections);
+            $contents = $renderer->render($file->getRelativePathname(), $context);
+
+            if (trim($contents) === '') {
+                return;
+            }
+
+            $this->fileSystem->dumpFile($targetPath.'/'.$file->getRelativePathname(), $contents);
+            $this->fileSystem->chmod($targetPath.'/'.$file->getRelativePathname(), $file->getPerms());
         }
     }
 
-    private function teleportFile(SplFileInfo $file, string $targetPath, int $permissions, iterable $selections): void
+    private function createRenderer(string $sourcePath): Environment
     {
-        $contents = $file->getContents();
-        $contents = $this->filterContents($contents, $selections);
+        $loader = new FilesystemLoader($sourcePath);
+        $twig = new Environment($loader);
+        $twig->setLexer(new Lexer($twig, [
+            'tag_block' => ['{##', '##}'],
+            'tag_comment' => ['{#*#*#', '#*#*#}'],
+            'tag_variable' => ['{{*#*#', '#*#*}}'],
+            'interpolation' => ['#{*#*#', '#*#*}'],
+        ]));
 
-        if (trim($contents) === '') {
-            return;
-        }
-
-        $this->fileSystem->dumpFile($targetPath, $contents);
-        $this->fileSystem->chmod($targetPath, $permissions);
+        return $twig;
     }
 
-    private function filterContents(string $contents, iterable $selections): string
+    private function createRendererContext(iterable $selections): iterable
     {
-        $parts = preg_split('/[ \t]*### (.+) ###\n?/', $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-        $filteredContents = $parts[0];
-
-        $depth = 0;
-        $skipDepth = 10000;
-
-        for ($offset = 1; $offset < count($parts); $offset += 2) {
-
-            $condition = $parts[$offset];
-            $condition == 'end' ? $depth-- : $depth++;
-
-            if ($depth >= $skipDepth) {
-                continue;
-            }
-
-            $append = str_replace($selections, 'true', $condition);
-            $append = preg_replace('/(?!true\b)\b\w+/', 'false', $append);
-            $append = $condition == 'end' || $this->expressionLanguage->evaluate($append);
-
-            if ($append) {
-                $filteredContents .= $parts[$offset + 1];
-                $skipDepth = 1000;
-            } else {
-                $skipDepth = $depth;
-            }
+        $context = [];
+        foreach ($selections as $selection) {
+            $context[$selection] = true;
         }
 
-        return $filteredContents;
+        return $context;
     }
 }
