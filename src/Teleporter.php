@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * (c) Jeroen van den Enden <info@endroid.nl>
  *
@@ -43,7 +45,7 @@ class Teleporter
         foreach ($files as $file) {
             $contents = $renderer->render($file->getRelativePathname(), $context);
 
-            if (trim($contents) === '' && file_get_contents($file->getPathname()) != $contents) {
+            if ('' === trim($contents) && file_get_contents($file->getPathname()) != $contents) {
                 continue;
             }
 
