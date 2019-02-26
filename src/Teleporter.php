@@ -15,34 +15,43 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Contracts\Tests\Service\ServiceLocatorTest;
 use Twig\Environment;
 use Twig\Lexer;
 use Twig\Loader\FilesystemLoader;
 
 class Teleporter
 {
-    private $finder;
     private $expressionLanguage;
     private $fileSystem;
+    private $skipFolders;
 
     public function __construct()
     {
-        $this->finder = new Finder();
         $this->expressionLanguage = new ExpressionLanguage();
         $this->fileSystem = new Filesystem();
-
-        $this->finder->ignoreDotFiles(false);
+        $this->skipFolders = [];
     }
 
-    public function teleport(string $sourcePath, string $targetPath, iterable $selections): void
+    public function teleport(string $sourcePath, string $targetPath, array $selections): void
     {
+        $this->determineSkipFolders($sourcePath, $selections);
+        
         $renderer = $this->createRenderer($sourcePath);
         $context = $this->createRendererContext($selections);
 
+        $finder = new Finder();
+        $finder->ignoreDotFiles(false);
+
         /** @var SplFileInfo[] $files */
-        $files = $this->finder->files()->in($sourcePath);
+        $files = $finder->files()->in($sourcePath);
 
         foreach ($files as $file) {
+
+            if ($this->isInSkipFolder($file)) {
+                continue;
+            }
+
             if ($this->isBinary($file)) {
                 $contents = file_get_contents($file->getPathname());
             } else {
@@ -56,6 +65,36 @@ class Teleporter
             $this->fileSystem->dumpFile($targetPath.'/'.$file->getRelativePathname(), $contents);
             $this->fileSystem->chmod($targetPath.'/'.$file->getRelativePathname(), $file->getPerms());
         }
+    }
+
+    private function determineSkipFolders(string $sourcePath, array $selections)
+    {
+        $finder = new Finder();
+        $finder->ignoreDotFiles(false);
+
+        /** @var SplFileInfo[] $files */
+        $files = $finder->files()->name('.build')->in($sourcePath);
+
+        foreach ($files as $file) {
+            $contents = file_get_contents($file->getPathname());
+            $requires = explode("\n", $contents);
+            $intersection = array_intersect($selections, $requires);
+
+            if (count($intersection) === 0) {
+                $this->skipFolders[$file->getPath()] = $file->getPath();
+            }
+        }
+    }
+
+    private function isInSkipFolder(SplFileInfo $fileInfo)
+    {
+        foreach ($this->skipFolders as $skipFolder) {
+            if (strpos($fileInfo->getPath(), $skipFolder) === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isBinary(SplFileInfo $fileInfo)
@@ -88,7 +127,7 @@ class Teleporter
         return $twig;
     }
 
-    private function createRendererContext(iterable $selections): iterable
+    private function createRendererContext(array $selections): iterable
     {
         $context = [];
         foreach ($selections as $selection) {
