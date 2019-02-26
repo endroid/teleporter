@@ -43,7 +43,11 @@ class Teleporter
         $files = $this->finder->files()->in($sourcePath);
 
         foreach ($files as $file) {
-            $contents = $renderer->render($file->getRelativePathname(), $context);
+            if ($this->isBinary($file)) {
+                $contents = file_get_contents($file->getPathname());
+            } else {
+                $contents = $renderer->render($file->getRelativePathname(), $context);
+            }
 
             if ('' === trim($contents) && file_get_contents($file->getPathname()) != $contents) {
                 continue;
@@ -52,6 +56,22 @@ class Teleporter
             $this->fileSystem->dumpFile($targetPath.'/'.$file->getRelativePathname(), $contents);
             $this->fileSystem->chmod($targetPath.'/'.$file->getRelativePathname(), $file->getPerms());
         }
+    }
+
+    private function isBinary(SplFileInfo $fileInfo)
+    {
+        $fileInfoMimeType = finfo_open(FILEINFO_MIME);
+        $mimeType = finfo_file($fileInfoMimeType, $fileInfo->getPathname());
+
+        if (substr($mimeType, -6) === 'binary') {
+            return true;
+        }
+
+        if (substr($mimeType, 0, 4) !== 'text') {
+            return true;
+        }
+
+        return false;
     }
 
     private function createRenderer(string $sourcePath): Environment

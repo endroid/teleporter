@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": ">=7.1",
+        "ext-fileinfo": "*",
         "endroid/installer": "^1.0.6",
         "symfony/console": "^4.1",
         "symfony/filesystem": "^4.1",
