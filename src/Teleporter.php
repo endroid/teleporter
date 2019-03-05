@@ -44,7 +44,7 @@ class Teleporter
         $finder->ignoreDotFiles(false);
 
         /** @var SplFileInfo[] $files */
-        $files = $finder->files()->in($sourcePath);
+        $files = $finder->files()->notName('.build')->in($sourcePath);
 
         foreach ($files as $file) {
 
