@@ -15,7 +15,6 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Contracts\Tests\Service\ServiceLocatorTest;
 use Twig\Environment;
 use Twig\Lexer;
 use Twig\Loader\FilesystemLoader;
@@ -36,7 +35,7 @@ class Teleporter
     public function teleport(string $sourcePath, string $targetPath, array $selections): void
     {
         $this->determineSkipFolders($sourcePath, $selections);
-        
+
         $renderer = $this->createRenderer($sourcePath);
         $context = $this->createRendererContext($selections);
 
@@ -47,7 +46,6 @@ class Teleporter
         $files = $finder->files()->notName('.build')->in($sourcePath);
 
         foreach ($files as $file) {
-
             if ($this->isInSkipFolder($file)) {
                 continue;
             }
@@ -80,7 +78,7 @@ class Teleporter
             $requires = explode("\n", $contents);
             $intersection = array_intersect($selections, $requires);
 
-            if (count($intersection) === 0) {
+            if (0 === count($intersection)) {
                 $this->skipFolders[$file->getPath()] = $file->getPath();
             }
         }
@@ -89,7 +87,7 @@ class Teleporter
     private function isInSkipFolder(SplFileInfo $fileInfo)
     {
         foreach ($this->skipFolders as $skipFolder) {
-            if (strpos($fileInfo->getPath(), $skipFolder) === 0) {
+            if (0 === strpos($fileInfo->getPath(), $skipFolder)) {
                 return true;
             }
         }
@@ -102,11 +100,11 @@ class Teleporter
         $fileInfoMimeType = finfo_open(FILEINFO_MIME);
         $mimeType = finfo_file($fileInfoMimeType, $fileInfo->getPathname());
 
-        if (substr($mimeType, -6) === 'binary') {
+        if ('binary' === substr($mimeType, -6)) {
             return true;
         }
 
-        if (substr($mimeType, 0, 4) !== 'text') {
+        if ('text' !== substr($mimeType, 0, 4)) {
             return true;
         }
 
