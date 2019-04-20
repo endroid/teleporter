@@ -41,7 +41,7 @@ class TeleportCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $sourcePath = $input->getArgument('sourcePath');
         $targetPath = $input->getArgument('targetPath');

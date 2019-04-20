@@ -51,7 +51,7 @@ class Teleporter
             }
 
             if ($this->isBinary($file)) {
-                $contents = file_get_contents($file->getPathname());
+                $contents = (string) file_get_contents($file->getPathname());
             } else {
                 $contents = $renderer->render($file->getRelativePathname(), $context);
             }
@@ -74,7 +74,7 @@ class Teleporter
         $files = $finder->files()->name('.build')->in($sourcePath);
 
         foreach ($files as $file) {
-            $contents = file_get_contents($file->getPathname());
+            $contents = (string) file_get_contents($file->getPathname());
             $requires = explode("\n", $contents);
             $intersection = array_intersect($selections, $requires);
 
@@ -125,7 +125,7 @@ class Teleporter
         return $twig;
     }
 
-    private function createRendererContext(array $selections): iterable
+    private function createRendererContext(array $selections): array
     {
         $context = [];
         foreach ($selections as $selection) {
