@@ -25,8 +25,13 @@ class TeleportCommandTest extends TestCase
         $commandTester->execute([
             'sourcePath' => __DIR__.'/../source',
             'targetPath' => __DIR__.'/../target',
+            'selections' => ['include'],
         ]);
 
-        $this->assertEquals('interact called'.PHP_EOL.'execute called'.PHP_EOL, $tester->getDisplay(), '->run() calls the interact() method if the input is interactive');
+        $output = $commandTester->getDisplay();
+        $this->assertEquals('', $output);
+
+        $contents = (string) file_get_contents(__DIR__.'/../target/file.txt');
+        $this->assertEquals('include', $contents);
     }
 }

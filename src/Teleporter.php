@@ -116,10 +116,10 @@ class Teleporter
         $loader = new FilesystemLoader($sourcePath);
         $twig = new Environment($loader);
         $twig->setLexer(new Lexer($twig, [
-            'tag_block' => ['{##', '##}'],
-            'tag_comment' => ['{#*#*#', '#*#*#}'],
-            'tag_variable' => ['{{*#*#', '#*#*}}'],
-            'interpolation' => ['#{*#*#', '#*#*}'],
+            'tag_block' => ['{--', '--}'],
+            'tag_comment' => ['{---', '---}'],
+            'tag_variable' => ['{----', '----}'],
+            'interpolation' => ['{-----', '-----}'],
         ]));
 
         return $twig;

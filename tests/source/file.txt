@@ -1,1 +1,1 @@
-contents
+{-- if include --}include{-- endif --}{-- if exclude --}exclude{-- endif --}
