@@ -98,7 +98,16 @@ class Teleporter
     private function isBinary(SplFileInfo $fileInfo)
     {
         $fileInfoMimeType = finfo_open(FILEINFO_MIME);
+
+        if (false === $fileInfoMimeType) {
+            throw new \Exception('Mime type could not be determined');
+        }
+
         $mimeType = finfo_file($fileInfoMimeType, $fileInfo->getPathname());
+
+        if (false === $mimeType) {
+            throw new \Exception('Mime type could not be determined');
+        }
 
         if ('binary' === substr($mimeType, -6)) {
             return true;
