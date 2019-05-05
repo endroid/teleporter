@@ -15,7 +15,7 @@ before_install:
   - curl -sS https://getcomposer.org/installer | php -- --filename=composer
 
 install:
-  - composer update --no-interaction --prefer-source $COMPOSER_FLAGS
+  - composer update --no-interaction --prefer-dist $COMPOSER_FLAGS
 
 script:
   - vendor/bin/test
