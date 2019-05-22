@@ -43,7 +43,7 @@ class Teleporter
         $finder->ignoreDotFiles(false);
 
         /** @var SplFileInfo[] $files */
-        $files = $finder->files()->notName('.build')->in($sourcePath);
+        $files = $finder->files()->notName('.teleport')->in($sourcePath);
 
         foreach ($files as $file) {
             if ($this->isInSkipFolder($file)) {
@@ -71,7 +71,7 @@ class Teleporter
         $finder->ignoreDotFiles(false);
 
         /** @var SplFileInfo[] $files */
-        $files = $finder->files()->name('.build')->in($sourcePath);
+        $files = $finder->files()->name('.teleport')->in($sourcePath);
 
         foreach ($files as $file) {
             $contents = (string) file_get_contents($file->getPathname());
