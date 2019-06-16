@@ -22,7 +22,7 @@
         "twig/twig": "^2.5"
     },
     "require-dev": {
-        "endroid/test": "^1.1.4"
+        "endroid/test": "^1.1.8"
     },
     "autoload": {
         "psr-4": {
