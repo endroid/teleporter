@@ -48,5 +48,7 @@ class TeleportCommand extends Command
         $selections = $input->getArgument('selections');
 
         $this->teleporter->teleport($sourcePath, $targetPath, $selections);
+
+        return 0;
     }
 }
