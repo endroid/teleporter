@@ -1,0 +1,9 @@
+teleporter:
+  modules:
+    module_a:
+      - Module A feature 1
+      - Module A feature 2
+    module_b:
+      - Module B feature 1
+      - Module B feature 2
+      - Module B feature 3

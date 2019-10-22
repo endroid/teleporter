@@ -25,13 +25,13 @@ class TeleportCommandTest extends TestCase
         $commandTester->execute([
             'sourcePath' => __DIR__.'/../source',
             'targetPath' => __DIR__.'/../target',
-            'selections' => ['include'],
+            'selections' => ['module_a'],
         ]);
 
         $output = $commandTester->getDisplay();
         $this->assertEquals('', $output);
 
-        $contents = (string) file_get_contents(__DIR__.'/../target/file.txt');
-        $this->assertEquals('include', $contents);
+        $contents = strval(file_get_contents(__DIR__.'/../target/file.txt'));
+        $this->assertEquals('Module A content', $contents);
     }
 }

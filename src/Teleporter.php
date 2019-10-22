@@ -23,6 +23,8 @@ class Teleporter
 {
     private $expressionLanguage;
     private $fileSystem;
+
+    /** @var array * */
     private $skipFolders;
 
     public function __construct()
@@ -43,7 +45,12 @@ class Teleporter
         $finder->ignoreDotFiles(false);
 
         /** @var SplFileInfo[] $files */
-        $files = $finder->files()->notName('.teleport')->in($sourcePath);
+        $files = $finder
+            ->files()
+            ->notName('.teleport')
+            ->notName('.teleport.yaml')
+            ->in($sourcePath)
+        ;
 
         foreach ($files as $file) {
             if ($this->isInSkipFolder($file)) {
@@ -65,7 +72,7 @@ class Teleporter
         }
     }
 
-    private function determineSkipFolders(string $sourcePath, array $selections)
+    private function determineSkipFolders(string $sourcePath, array $selections): void
     {
         $finder = new Finder();
         $finder->ignoreDotFiles(false);
@@ -74,17 +81,17 @@ class Teleporter
         $files = $finder->files()->name('.teleport')->in($sourcePath);
 
         foreach ($files as $file) {
-            $contents = (string) file_get_contents($file->getPathname());
+            $contents = strval(file_get_contents($file->getPathname()));
             $requires = explode("\n", $contents);
             $intersection = array_intersect($selections, $requires);
 
             if (0 === count($intersection)) {
-                $this->skipFolders[$file->getPath()] = $file->getPath();
+                $this->skipFolders[] = $file->getPath();
             }
         }
     }
 
-    private function isInSkipFolder(SplFileInfo $fileInfo)
+    private function isInSkipFolder(SplFileInfo $fileInfo): bool
     {
         foreach ($this->skipFolders as $skipFolder) {
             if (0 === strpos($fileInfo->getPath(), $skipFolder)) {
@@ -95,7 +102,7 @@ class Teleporter
         return false;
     }
 
-    private function isBinary(SplFileInfo $fileInfo)
+    private function isBinary(SplFileInfo $fileInfo): bool
     {
         $fileInfoMimeType = finfo_open(FILEINFO_MIME);
 

@@ -16,6 +16,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class TeleportCommand extends Command
 {
@@ -30,7 +31,7 @@ class TeleportCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('endroid:teleport')
@@ -43,9 +44,9 @@ class TeleportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $sourcePath = $input->getArgument('sourcePath');
-        $targetPath = $input->getArgument('targetPath');
-        $selections = $input->getArgument('selections');
+        $sourcePath = strval($input->getArgument('sourcePath'));
+        $targetPath = strval($input->getArgument('targetPath'));
+        $selections = (array) $input->getArgument('selections');
 
         $this->teleporter->teleport($sourcePath, $targetPath, $selections);
 

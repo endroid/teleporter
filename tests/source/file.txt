@@ -1,1 +1,2 @@
-{-- if include --}include{-- endif --}{-- if exclude --}exclude{-- endif --}
+{-- if module_a --}Module A content{-- endif --}
+{-- if module_b --}Module B content{-- endif --}
