@@ -3,7 +3,7 @@
 *By [endroid](https://endroid.nl/)*
 
 [![Latest Stable Version](http://img.shields.io/packagist/v/endroid/teleporter.svg)](https://packagist.org/packages/endroid/teleporter)
-[![Build Status](http://img.shields.io/travis/endroid/teleporter.svg)](http://travis-ci.org/endroid/teleporter)
+[![Build Status](https://github.com/endroid/teleporter/workflows/CI/badge.svg)](https://github.com/endroid/teleporter/actions)
 [![Total Downloads](http://img.shields.io/packagist/dt/endroid/teleporter.svg)](https://packagist.org/packages/endroid/teleporter)
 [![License](http://img.shields.io/packagist/l/endroid/teleporter.svg)](https://packagist.org/packages/endroid/teleporter)
 
