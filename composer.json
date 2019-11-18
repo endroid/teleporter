@@ -15,10 +15,10 @@
         "php": ">=7.2",
         "ext-fileinfo": "*",
         "endroid/installer": "^1.0.6",
-        "symfony/console": "^4.1",
-        "symfony/filesystem": "^4.1",
-        "symfony/finder": "^4.1",
-        "symfony/expression-language": "^4.1",
+        "symfony/console": "^4.1||^5.0",
+        "symfony/filesystem": "^4.1||^5.0",
+        "symfony/finder": "^4.1||^5.0",
+        "symfony/expression-language": "^4.1||^5.0",
         "twig/twig": "^2.5"
     },
     "require-dev": {
