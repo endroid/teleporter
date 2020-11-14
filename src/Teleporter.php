@@ -21,11 +21,11 @@ use Twig\Loader\FilesystemLoader;
 
 class Teleporter
 {
-    private $expressionLanguage;
-    private $fileSystem;
+    private ExpressionLanguage $expressionLanguage;
+    private Filesystem $fileSystem;
 
-    /** @var array * */
-    private $skipFolders;
+    /** @var array<string> */
+    private array $skipFolders;
 
     public function __construct()
     {
@@ -34,6 +34,7 @@ class Teleporter
         $this->skipFolders = [];
     }
 
+    /** @param array<string> $selections */
     public function teleport(string $sourcePath, string $targetPath, array $selections): void
     {
         $this->determineSkipFolders($sourcePath, $selections);
@@ -68,10 +69,11 @@ class Teleporter
             }
 
             $this->fileSystem->dumpFile($targetPath.'/'.$file->getRelativePathname(), $contents);
-            $this->fileSystem->chmod($targetPath.'/'.$file->getRelativePathname(), $file->getPerms());
+            $this->fileSystem->chmod($targetPath.'/'.$file->getRelativePathname(), intval($file->getPerms()));
         }
     }
 
+    /** @param array<string> $selections */
     private function determineSkipFolders(string $sourcePath, array $selections): void
     {
         $finder = new Finder();
@@ -141,6 +143,10 @@ class Teleporter
         return $twig;
     }
 
+    /**
+     * @param array<string> $selections
+     * @return array<bool>
+     */
     private function createRendererContext(array $selections): array
     {
         $context = [];

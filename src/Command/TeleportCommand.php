@@ -33,7 +33,6 @@ class TeleportCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('endroid:teleport')
             ->addArgument('sourcePath', InputArgument::REQUIRED)
             ->addArgument('targetPath', InputArgument::REQUIRED)
             ->addArgument('selections', InputArgument::IS_ARRAY)
@@ -43,9 +42,13 @@ class TeleportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $sourcePath = strval($input->getArgument('sourcePath'));
-        $targetPath = strval($input->getArgument('targetPath'));
-        $selections = (array) $input->getArgument('selections');
+        $sourcePath = $input->getArgument('sourcePath');
+        $targetPath = $input->getArgument('targetPath');
+        $selections = $input->getArgument('selections');
+
+        if (!is_string($sourcePath) || !is_string($targetPath) || !is_array($selections)) {
+            throw new \Exception('Please provide a sourcePath, targetPath and selections');
+        }
 
         $this->teleporter->teleport($sourcePath, $targetPath, $selections);
 
