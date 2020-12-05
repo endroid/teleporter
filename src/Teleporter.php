@@ -21,11 +21,14 @@ use Twig\Loader\FilesystemLoader;
 
 class Teleporter
 {
-    private ExpressionLanguage $expressionLanguage;
-    private Filesystem $fileSystem;
+    /** @var ExpressionLanguage */
+    private $expressionLanguage;
+
+    /** @var Filesystem */
+    private $fileSystem;
 
     /** @var array<string> */
-    private array $skipFolders;
+    private $skipFolders;
 
     public function __construct()
     {
@@ -145,6 +148,7 @@ class Teleporter
 
     /**
      * @param array<string> $selections
+     *
      * @return array<bool>
      */
     private function createRendererContext(array $selections): array
