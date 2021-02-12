@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Endroid\Teleporter;
 
+use Cocur\Slugify\Slugify;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -18,6 +19,7 @@ use Symfony\Component\Finder\SplFileInfo;
 use Twig\Environment;
 use Twig\Lexer;
 use Twig\Loader\FilesystemLoader;
+use Twig\TwigFilter;
 
 class Teleporter
 {
@@ -37,13 +39,16 @@ class Teleporter
         $this->skipFolders = [];
     }
 
-    /** @param array<string> $selections */
-    public function teleport(string $sourcePath, string $targetPath, array $selections): void
+    /**
+     * @param array<string> $selections
+     * @param array<string> $replaces
+     */
+    public function teleport(string $sourcePath, string $targetPath, array $selections, array $replaces): void
     {
         $this->determineSkipFolders($sourcePath, $selections);
 
         $renderer = $this->createRenderer($sourcePath);
-        $context = $this->createRendererContext($selections);
+        $context = $this->createRendererContext($selections, $replaces);
 
         $finder = new Finder();
         $finder->ignoreDotFiles(false);
@@ -136,10 +141,19 @@ class Teleporter
     {
         $loader = new FilesystemLoader($sourcePath);
         $twig = new Environment($loader);
+
+        // Add slugify filter
+        $twig->addFilter(new TwigFilter('slug', function (string $contents) {
+            $slugify = new Slugify();
+
+            return $slugify->slugify($contents);
+        }));
+
+        // Make sure regular Twig files are not affected
         $twig->setLexer(new Lexer($twig, [
             'tag_block' => ['{--', '--}'],
-            'tag_comment' => ['{---', '---}'],
-            'tag_variable' => ['{----', '----}'],
+            'tag_comment' => ['{----', '----}'],
+            'tag_variable' => ['{---', '---}'],
             'interpolation' => ['{-----', '-----}'],
         ]));
 
@@ -148,14 +162,20 @@ class Teleporter
 
     /**
      * @param array<string> $selections
+     * @param array<string> $replaces
      *
-     * @return array<bool>
+     * @return array<mixed>
      */
-    private function createRendererContext(array $selections): array
+    private function createRendererContext(array $selections, array $replaces): array
     {
         $context = [];
+
         foreach ($selections as $selection) {
             $context[$selection] = true;
+        }
+
+        foreach ($replaces as $search => $replace) {
+            $context[$search] = $replace;
         }
 
         return $context;

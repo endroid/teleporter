@@ -25,13 +25,16 @@ class TeleportCommandTest extends TestCase
         $commandTester->execute([
             'sourcePath' => __DIR__.'/../source',
             'targetPath' => __DIR__.'/../target',
-            'selections' => ['module_a'],
+            'parameters' => ['module_a', 'search=replace'],
         ]);
 
         $output = $commandTester->getDisplay();
         $this->assertEquals('', $output);
 
         $contents = strval(file_get_contents(__DIR__.'/../target/file.txt'));
-        $this->assertEquals('Module A content', $contents);
+        $this->assertStringContainsString('Module A content', $contents);
+        $this->assertStringNotContainsString('Module B content', $contents);
+        $this->assertStringContainsString('replace', $contents);
+        $this->assertStringNotContainsString('not found', $contents);
     }
 }
