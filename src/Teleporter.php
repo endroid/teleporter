@@ -2,17 +2,9 @@
 
 declare(strict_types=1);
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
-
 namespace Endroid\Teleporter;
 
 use Cocur\Slugify\Slugify;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -23,18 +15,13 @@ use Twig\TwigFilter;
 
 class Teleporter
 {
-    /** @var ExpressionLanguage */
-    private $expressionLanguage;
-
-    /** @var Filesystem */
-    private $fileSystem;
+    private Filesystem $fileSystem;
 
     /** @var array<string> */
-    private $skipFolders;
+    private array $skipFolders;
 
     public function __construct()
     {
-        $this->expressionLanguage = new ExpressionLanguage();
         $this->fileSystem = new Filesystem();
         $this->skipFolders = [];
     }
