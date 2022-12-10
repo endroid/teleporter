@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'endroid:teleport', description: 'Teleports files from one location to another')]
-class TeleportCommand extends Command
+final class TeleportCommand extends Command
 {
     public function __construct(
         private Teleporter $teleporter
@@ -29,7 +29,7 @@ class TeleportCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $sourcePath = $input->getArgument('sourcePath');
         $targetPath = $input->getArgument('targetPath');

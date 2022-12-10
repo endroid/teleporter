@@ -13,17 +13,16 @@ use Twig\Lexer;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 
-class Teleporter
+final class Teleporter
 {
     private Filesystem $fileSystem;
 
     /** @var array<string> */
-    private array $skipFolders;
+    private array $skipFolders = [];
 
     public function __construct()
     {
         $this->fileSystem = new Filesystem();
-        $this->skipFolders = [];
     }
 
     /**
