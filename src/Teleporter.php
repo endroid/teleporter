@@ -15,14 +15,9 @@ use Twig\TwigFilter;
 
 final class Teleporter
 {
-    private Filesystem $fileSystem;
-
-    /** @var array<string> */
-    private array $skipFolders = [];
-
-    public function __construct()
-    {
-        $this->fileSystem = new Filesystem();
+    public function __construct(
+        private readonly Filesystem $fileSystem = new Filesystem()
+    ) {
     }
 
     /**
@@ -31,7 +26,7 @@ final class Teleporter
      */
     public function teleport(string $sourcePath, string $targetPath, array $selections, array $replaces): void
     {
-        $this->determineSkipFolders($sourcePath, $selections);
+        $skipFolders = $this->determineSkipFolders($sourcePath, $selections);
 
         $renderer = $this->createRenderer($sourcePath);
         $context = $this->createRendererContext($selections, $replaces);
@@ -48,7 +43,7 @@ final class Teleporter
         ;
 
         foreach ($files as $file) {
-            if ($this->isInSkipFolder($file)) {
+            if ($this->isInSkipFolder($file, $skipFolders)) {
                 continue;
             }
 
@@ -67,9 +62,15 @@ final class Teleporter
         }
     }
 
-    /** @param array<string> $selections */
-    private function determineSkipFolders(string $sourcePath, array $selections): void
+    /**
+     * @param array<string> $selections
+     *
+     * @return array<string>
+     */
+    private function determineSkipFolders(string $sourcePath, array $selections): array
     {
+        $skipFolders = [];
+
         $finder = new Finder();
         $finder->ignoreDotFiles(false);
 
@@ -82,15 +83,18 @@ final class Teleporter
             $intersection = array_intersect($selections, $requires);
 
             if (0 === count($intersection)) {
-                $this->skipFolders[] = $file->getPath();
+                $skipFolders[] = $file->getPath();
             }
         }
+
+        return $skipFolders;
     }
 
-    private function isInSkipFolder(SplFileInfo $fileInfo): bool
+    /** @param array<string> $skipFolders */
+    private function isInSkipFolder(SplFileInfo $fileInfo, array $skipFolders): bool
     {
-        foreach ($this->skipFolders as $skipFolder) {
-            if (0 === strpos($fileInfo->getPath(), $skipFolder)) {
+        foreach ($skipFolders as $skipFolder) {
+            if (str_starts_with($fileInfo->getPath(), $skipFolder)) {
                 return true;
             }
         }
@@ -112,11 +116,11 @@ final class Teleporter
             throw new \Exception('Mime type could not be determined');
         }
 
-        if ('binary' === substr($mimeType, -6)) {
+        if (str_ends_with($mimeType, 'binary')) {
             return true;
         }
 
-        if ('text' !== substr($mimeType, 0, 4)) {
+        if (!str_starts_with($mimeType, 'text')) {
             return true;
         }
 

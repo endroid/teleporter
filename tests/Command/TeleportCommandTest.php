@@ -8,9 +8,12 @@ use Endroid\Teleporter\Teleporter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class TeleportCommandTest extends TestCase
+final class TeleportCommandTest extends TestCase
 {
-    public function testExecute()
+    /**
+     * @testdox Check if a teleport command can be executed
+     */
+    public function testExecute(): void
     {
         $teleporter = new Teleporter();
         $teleportCommand = new TeleportCommand($teleporter);
