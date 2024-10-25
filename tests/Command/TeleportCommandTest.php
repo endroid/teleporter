@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Endroid\Teleporter\Command;
 
 use Endroid\Teleporter\Teleporter;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class TeleportCommandTest extends TestCase
 {
-    /**
-     * @testdox Check if a teleport command can be executed
-     */
+    #[TestDox('Check if a teleport command can be executed')]
     public function testExecute(): void
     {
         $teleporter = new Teleporter();

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class TeleportCommand extends Command
 {
     public function __construct(
-        private readonly Teleporter $teleporter
+        private readonly Teleporter $teleporter,
     ) {
         parent::__construct();
     }

@@ -13,10 +13,10 @@ use Twig\Lexer;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 
-final class Teleporter
+final readonly class Teleporter
 {
     public function __construct(
-        private readonly Filesystem $fileSystem = new Filesystem()
+        private Filesystem $fileSystem = new Filesystem(),
     ) {
     }
 
