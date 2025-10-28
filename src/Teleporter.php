@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Endroid\Teleporter;
 
-use Cocur\Slugify\Slugify;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -34,7 +33,6 @@ final readonly class Teleporter
         $finder = new Finder();
         $finder->ignoreDotFiles(false);
 
-        /** @var SplFileInfo[] $files */
         $files = $finder
             ->files()
             ->notName('.teleport')
@@ -74,7 +72,6 @@ final readonly class Teleporter
         $finder = new Finder();
         $finder->ignoreDotFiles(false);
 
-        /** @var SplFileInfo[] $files */
         $files = $finder->files()->name('.teleport')->in($sourcePath);
 
         foreach ($files as $file) {
@@ -134,9 +131,7 @@ final readonly class Teleporter
 
         // Add slugify filter
         $twig->addFilter(new TwigFilter('slug', function (string $contents) {
-            $slugify = new Slugify();
-
-            return $slugify->slugify($contents);
+            return $this->slugify($contents);
         }));
 
         // Make sure regular Twig files are not affected
@@ -169,5 +164,44 @@ final readonly class Teleporter
         }
 
         return $context;
+    }
+
+    private function slugify(string $text): string
+    {
+        // Convert to lowercase
+        $text = mb_strtolower($text, 'UTF-8');
+
+        // Replace non-letter or digits with hyphens
+        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+
+        // Handle null case from preg_replace
+        if (null === $text) {
+            return '';
+        }
+
+        // Transliterate
+        $converted = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+
+        // Handle false case from iconv
+        if (false === $converted) {
+            return '';
+        }
+
+        // Remove non-alphanumeric characters
+        $text = preg_replace('~[^-\w]+~', '', $converted);
+
+        // Handle null case from preg_replace
+        if (null === $text) {
+            return '';
+        }
+
+        // Trim hyphens from ends
+        $text = trim($text, '-');
+
+        // Remove duplicate hyphens
+        $text = preg_replace('~-+~', '-', $text);
+
+        // Handle null case and return empty string if result is empty
+        return $text ?? '';
     }
 }
