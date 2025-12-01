@@ -22,6 +22,6 @@ use Endroid\Teleporter\Command\TeleportCommand;
 use Endroid\Teleporter\Teleporter;
 
 $console = new Application('Endroid Teleporter');
-$console->add(new TeleportCommand(new Teleporter()));
+$console->addCommand(new TeleportCommand(new Teleporter()));
 $console->setDefaultCommand('endroid:teleport', true);
 $console->run();
