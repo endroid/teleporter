@@ -5,12 +5,36 @@ declare(strict_types=1);
 namespace Endroid\Teleporter\Command;
 
 use Endroid\Teleporter\Teleporter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class TeleportCommandTest extends TestCase
 {
+    /** @return iterable<string, array{array<string, mixed>}> */
+    public static function invalidArguments(): iterable
+    {
+        yield 'source is an integer' => [['sourcePath' => 123]];
+        yield 'target is an integer' => [['targetPath' => 123]];
+        yield 'numeric parameter' => [['parameters' => [123]]];
+        yield 'null parameter' => [['parameters' => [null]]];
+        yield 'nested parameter' => [['parameters' => [['search=replace']]]];
+    }
+
+    /** @param array<string, mixed> $arguments */
+    #[DataProvider('invalidArguments')]
+    public function testMalformedArgumentsAreRejected(array $arguments): void
+    {
+        $tester = new CommandTester(new TeleportCommand(new Teleporter()));
+        $this->expectException(\InvalidArgumentException::class);
+        $tester->execute(array_replace([
+            'sourcePath' => __DIR__.'/../source',
+            'targetPath' => __DIR__.'/../target',
+            'parameters' => [],
+        ], $arguments));
+    }
+
     #[TestDox('Check if a teleport command can be executed')]
     public function testExecute(): void
     {

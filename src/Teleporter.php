@@ -16,8 +16,7 @@ final readonly class Teleporter
 {
     public function __construct(
         private Filesystem $fileSystem = new Filesystem(),
-    ) {
-    }
+    ) {}
 
     /**
      * @param array<string> $selections
@@ -33,30 +32,23 @@ final readonly class Teleporter
         $finder = new Finder();
         $finder->ignoreDotFiles(false);
 
-        $files = $finder
-            ->files()
-            ->notName('.teleport')
-            ->notName('.teleport.yaml')
-            ->in($sourcePath)
-        ;
+        $files = $finder->files()->notName('.teleport')->notName('.teleport.yaml')->in($sourcePath);
 
         foreach ($files as $file) {
             if ($this->isInSkipFolder($file, $skipFolders)) {
                 continue;
             }
 
-            if ($this->isBinary($file)) {
-                $contents = (string) file_get_contents($file->getPathname());
-            } else {
-                $contents = $renderer->render($file->getRelativePathname(), $context);
-            }
+            $contents = $this->isBinary($file)
+                ? (string) file_get_contents($file->getPathname())
+                : $renderer->render($file->getRelativePathname(), $context);
 
-            if ('' === trim($contents) && file_get_contents($file->getPathname()) != $contents) {
+            if ('' === trim($contents) && file_get_contents($file->getPathname()) !== $contents) {
                 continue;
             }
 
-            $this->fileSystem->dumpFile($targetPath.'/'.$file->getRelativePathname(), $contents);
-            $this->fileSystem->chmod($targetPath.'/'.$file->getRelativePathname(), intval($file->getPerms()));
+            $this->fileSystem->dumpFile($targetPath . '/' . $file->getRelativePathname(), $contents);
+            $this->fileSystem->chmod($targetPath . '/' . $file->getRelativePathname(), intval($file->getPerms()));
         }
     }
 
@@ -130,9 +122,7 @@ final readonly class Teleporter
         $twig = new Environment($loader);
 
         // Add slugify filter
-        $twig->addFilter(new TwigFilter('slug', function (string $contents) {
-            return $this->slugify($contents);
-        }));
+        $twig->addFilter(new TwigFilter('slug', $this->slugify(...)));
 
         // Make sure regular Twig files are not affected
         $twig->setLexer(new Lexer($twig, [
@@ -169,10 +159,10 @@ final readonly class Teleporter
     private function slugify(string $text): string
     {
         // Convert to lowercase
-        $text = mb_strtolower($text, 'UTF-8');
+        $text = mb_strtolower($text, encoding: 'UTF-8');
 
         // Replace non-letter or digits with hyphens
-        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+        $text = preg_replace('~[^\pL\d]+~u', replacement: '-', subject: $text);
 
         // Handle null case from preg_replace
         if (null === $text) {
@@ -180,7 +170,7 @@ final readonly class Teleporter
         }
 
         // Transliterate
-        $converted = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+        $converted = iconv('UTF-8', to_encoding: 'ASCII//TRANSLIT//IGNORE', string: $text);
 
         // Handle false case from iconv
         if (false === $converted) {
@@ -188,7 +178,7 @@ final readonly class Teleporter
         }
 
         // Remove non-alphanumeric characters
-        $text = preg_replace('~[^-\w]+~', '', $converted);
+        $text = preg_replace('~[^-\w]+~', replacement: '', subject: $converted);
 
         // Handle null case from preg_replace
         if (null === $text) {
@@ -196,10 +186,10 @@ final readonly class Teleporter
         }
 
         // Trim hyphens from ends
-        $text = trim($text, '-');
+        $text = trim($text, characters: '-');
 
         // Remove duplicate hyphens
-        $text = preg_replace('~-+~', '-', $text);
+        $text = preg_replace('~-+~', replacement: '-', subject: $text);
 
         // Handle null case and return empty string if result is empty
         return $text ?? '';

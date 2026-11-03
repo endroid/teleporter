@@ -20,38 +20,59 @@ final class TeleportCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this
             ->addArgument('sourcePath', InputArgument::REQUIRED)
             ->addArgument('targetPath', InputArgument::REQUIRED)
-            ->addArgument('parameters', InputArgument::IS_ARRAY)
-        ;
+            ->addArgument('parameters', InputArgument::IS_ARRAY);
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $sourcePath = $input->getArgument('sourcePath');
-        $targetPath = $input->getArgument('targetPath');
-        $parameters = $input->getArgument('parameters');
-
-        if (!is_string($sourcePath) || !is_string($targetPath) || !is_array($parameters)) {
-            throw new \Exception('Please provide a sourcePath, targetPath and parameters (selections and assignments)');
-        }
+        $sourcePath = $this->requireString($input->getArgument('sourcePath'));
+        $targetPath = $this->requireString($input->getArgument('targetPath'));
+        $parameters = $this->requireParameters($input->getArgument('parameters'));
 
         $selections = [];
         $replaces = [];
         foreach ($parameters as $argument) {
             $parts = explode('=', $argument);
-            if (1 === count($parts)) {
+            if (null === ($parts[1] ?? null)) {
                 $selections[] = $parts[0];
-            } else {
-                $replaces[$parts[0]] = $parts[1];
+                continue;
             }
+            $replaces[$parts[0]] = $parts[1];
         }
 
         $this->teleporter->teleport($sourcePath, $targetPath, $selections, $replaces);
 
         return Command::SUCCESS;
+    }
+
+    private function requireString(mixed $value): string
+    {
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException('Paths and parameters must be strings');
+        }
+
+        return $value;
+    }
+
+    /** @return list<string> */
+    private function requireParameters(mixed $value): array
+    {
+        if (!is_array($value)) {
+            throw new \InvalidArgumentException('Parameters must be an array of strings');
+        }
+
+        $parameters = [];
+        foreach (array_keys($value) as $key) {
+            $parameters[] = $this->requireString($value[$key] ?? null);
+        }
+
+        return $parameters;
     }
 }
